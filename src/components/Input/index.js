@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react'
-import { Row, Col, Input as AntInput } from 'antd'
+import { Row, Col, Input as AntInput, Form } from 'antd'
 import { StyledLabel } from './style'
 
-export const Input = ({ label, value, onChange, require, unit }) => {
+export const Input = ({ name, type, label, value, onChange, require, unit, max, message }) => {
+
     return (
         <Fragment>
             <Row >
@@ -11,11 +12,13 @@ export const Input = ({ label, value, onChange, require, unit }) => {
                     {require && <StyledLabel color='red'>{`*`}</StyledLabel>}
                 </Col>
                 <Col style={{ padding: '0 5px' }}>
-                    <Row align='middle'>
+                    <Row>
                         <Col>
-                            <AntInput value={value} onChange={onChange} />
+                            <Form.Item name={name} rules={[{ required: require , message: message }]} >
+                                <AntInput autoComplete='off' name={name} type={type} value={value} onChange={onChange} maxLength={max} />
+                            </Form.Item>
                         </Col>
-                       {unit && <Col style={{ padding: '0 20px' }}>
+                        {unit && <Col style={{ padding: '0 20px' }}>
                             {unit}
                         </Col>}
                     </Row>

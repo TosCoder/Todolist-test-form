@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import { Row, Button, Form as AntdForm } from 'antd'
-import { Input, Select, Datepicker, Radio } from '../../components'
+import { Input, Select, Datepicker, Radio, CitizenId, Mobile } from '../../components'
 import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid';
 import { createList, updateSubmit } from '../../store/todos/action'
 import { connect } from 'react-redux'
+import { nationTel } from '../../helpers/constants'
 
 class Form extends Component {
     constructor(props) {
@@ -19,7 +20,8 @@ class Form extends Component {
             title: undefined,
             nationality: undefined,
             birthday: undefined,
-            gender: undefined
+            gender: undefined,
+            nation: '+66'
         }
         this.formRef = React.createRef()
     }
@@ -29,16 +31,13 @@ class Form extends Component {
     }
 
     componentDidUpdate = (prevProps, prevState) => {
-        console.log('Form-update =>', this.props)
         if (prevProps.todos !== this.props.todos) {
             this.getData()
         }
     }
 
     getData = () => {
-        console.log('Form =>', this.props)
         if (this.props.todos.dataEdit) {
-            console.log('have editing')
             const {
                 firstname,
                 lastname,
@@ -49,7 +48,8 @@ class Form extends Component {
                 title,
                 nationality,
                 birthday,
-                gender
+                gender,
+                nation
             } = this.props.todos.dataEdit
 
             this.setState({
@@ -62,9 +62,10 @@ class Form extends Component {
                 title: title,
                 nationality: nationality,
                 birthday: moment(birthday),
-                gender: gender
+                gender: gender,
+                nation: nation
             })
-            
+
             this.formRef.current.setFieldsValue({
                 firstname: firstname,
                 lastname: lastname,
@@ -75,7 +76,8 @@ class Form extends Component {
                 title: title,
                 nationality: nationality,
                 birthday: moment(birthday),
-                gender: gender
+                gender: gender,
+                nation: nation
             })
         } else {
             this.formRef.current.setFieldsValue({
@@ -88,7 +90,8 @@ class Form extends Component {
                 title: undefined,
                 nationality: undefined,
                 birthday: undefined,
-                gender: undefined
+                gender: undefined,
+                nation: '+66'
             })
         }
 
@@ -132,6 +135,9 @@ class Form extends Component {
             case 'nationality':
                 this.setState({ nationality: event })
                 break;
+            case 'nation':
+                this.setState({ nation: event })
+                break;
             default:
                 break;
         }
@@ -158,13 +164,13 @@ class Form extends Component {
             title,
             nationality,
             birthday,
-            gender
+            gender,
+            nation
         } = this.state
 
         const initalData = JSON.parse(localStorage.getItem('data'))
 
         if (this.props.todos.dataEdit) {
-            console.log('edit!!!')
             const body = {
                 ...this.props.todos.dataEdit,
                 firstname: firstname,
@@ -176,13 +182,13 @@ class Form extends Component {
                 title: title,
                 nationality: nationality,
                 birthday: birthday,
-                gender: gender
+                gender: gender,
+                nation: nation
             }
-            
-           this.onUpdate(body)
 
-        }else{
-            console.log('create!!!')
+            this.onUpdate(body)
+
+        } else {
             const body = {
                 key: initalData ? initalData.length + 1 : 1,
                 _id: uuidv4(),
@@ -196,26 +202,26 @@ class Form extends Component {
                 title: title,
                 nationality: nationality,
                 birthday: birthday,
-                gender: gender
+                gender: gender,
+                nation: nation
             }
 
             this.onCreate(initalData, body)
-    
+
         }
     }
 
     onUpdate = (body) => {
         const newArr = this.props.todos.data.map(item => {
-            if(item._id === body._id){
+            if (item._id === body._id) {
                 return body
-            }else{
+            } else {
                 return item
             }
         })
 
-        console.log(newArr)
         this.props.dispatch(updateSubmit(newArr))
-        
+
         this.getData()
 
     }
@@ -239,26 +245,92 @@ class Form extends Component {
             <Fragment>
                 <AntdForm onFinish={this.onFinish} ref={this.formRef} style={{ border: '1px solid black', padding: '20px 30px' }} >
                     <Row >
-                        <Select name='title' label='Title' options={['Mr.', 'Mrs.', 'Miss']} width='150px' onChange={this.onSelect} value={this.state.title} require message='Please select your title.' />
-                        <Input name='firstname' label='Firstname' onChange={this.onChange} value={this.state.firstname} require message='Please input your firstname.' />
-                        <Input name='lastname' label='Lastname' onChange={this.onChange} value={this.state.lastname} require message='Please input your lastname.' />
+                        <Select
+                            name='title'
+                            label='Title'
+                            options={['Mr.', 'Mrs.', 'Miss']}
+                            width='150px'
+                            onChange={this.onSelect}
+                            value={this.state.title}
+                            require
+                            message='Please select your title.' />
+                        <Input
+                            name='firstname'
+                            label='Firstname'
+                            onChange={this.onChange}
+                            value={this.state.firstname}
+                            require
+                            message='Please input your firstname.' />
+                        <Input
+                            name='lastname'
+                            label='Lastname'
+                            onChange={this.onChange}
+                            value={this.state.lastname}
+                            require
+                            message='Please input your lastname.' />
                     </Row>
                     <br />
                     <Row >
-                        <Datepicker name='birthday' label='Birthday' require message='Please input your birthday.' onChange={this.onDatepicker} value={this.state.birthday} />
-                        <Select name='nationality' label='Nationality' width='200px' options={['thai', 'eng', 'jp']} onChange={this.onSelect} value={this.state.nationality} />
+                        <Datepicker
+                            name='birthday'
+                            label='Birthday'
+                            require
+                            message='Please input your birthday.'
+                            onChange={this.onDatepicker}
+                            value={this.state.birthday} />
+                        <Select
+                            name='nationality'
+                            label='Nationality'
+                            width='200px'
+                            options={['thai', 'eng', 'jp']}
+                            onChange={this.onSelect}
+                            value={this.state.nationality} />
                     </Row>
                     <br />
-                    <Input name='citizen' type='tel' label='CitizenID' max={13} onChange={this.onChange} value={this.state.citizen} />
+                    <CitizenId
+                        mask={"0-0000-00000-00-0"}
+                        name='citizen'
+                        label='CitizenID'
+                        placeholder='x-xxxx-xxxxx-xx-x'
+                        value={this.state.citizen}
+                        onChange={this.onChange} />
                     <br />
-                    <Radio name='gender' label='Gender' onChange={this.onRadio} value={this.state.gender} />
+                    <Radio
+                        name='gender'
+                        label='Gender'
+                        onChange={this.onRadio}
+                        value={this.state.gender} />
                     <br />
-                    <Input name='mobile' label='Mobile Phone' onChange={this.onChange} value={this.state.mobile} require message='Please input your mobile.' />
+                    <Mobile
+                        name='mobile'
+                        title='nation'
+                        label='Mobile Phone'
+                        type='tel'
+                        onChange={this.onChange}
+                        onSelect={this.onSelect}
+                        value={this.state.mobile}
+                        value2={this.state.nation}
+                        require message='Please input your mobile.'
+                        max={10}
+                        width='200px'
+                        placeholder='...'
+                        options={nationTel} />
                     <br />
-                    <Input name='passport' label='Passport No' onChange={this.onChange} value={this.state.passport} />
+                    <Input
+                        name='passport'
+                        label='Passport No'
+                        onChange={this.onChange}
+                        value={this.state.passport} />
                     <br />
                     <Row justify='space-between'>
-                        <Input name='salary' label='Expected Salary' unit='THB' onChange={this.onChange} value={this.state.salary} require message='Please input your salary.' />
+                        <Input
+                            name='salary'
+                            label='Expected Salary'
+                            unit='THB'
+                            onChange={this.onChange}
+                            value={this.state.salary}
+                            require
+                            message='Please input your salary.' />
                         <Button type='primary' htmlType='submit'>Submit</Button>
                     </Row>
                 </AntdForm>

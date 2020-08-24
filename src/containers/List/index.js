@@ -19,14 +19,12 @@ class List extends Component{
     }
 
     componentDidUpdate = (prevProps, prevState) => {
-        console.log('List-update =>',this.props)
         if(prevProps.todos.data !== this.props.todos.data){
             this.getData()
         }
     }
 
     getData = () => {
-        console.log('List =>',this.props)
         const data = formController().getData()
         this.setState({ myList: JSON.parse(data) })
     }
@@ -54,9 +52,7 @@ class List extends Component{
         })
 
         if(this.state.myId.includes(data._id)){
-            console.log('sss')
             const arr = this.state.myId.filter(item => {return item !== data._id })
-            console.log(arr)
             this.setState({ myList: arrData, myId: arr })
         }else{
             this.state.myId.push(data._id)
@@ -74,7 +70,6 @@ class List extends Component{
     }
 
     handleUpdate = (data) => {
-        console.log(data)
         this.props.dispatch(updateList(data))
     }
 
@@ -84,7 +79,6 @@ class List extends Component{
             this.props.dispatch(deleteAll([]))
              this.setState({ myList : [] })
         }else{
-            console.log(this.state.myId)
             const arrData = this.state.myList.filter(item => !this.state.myId.includes(item._id))
             this.props.dispatch(deleteList(arrData))
             this.setState({ myList : arrData })
@@ -115,9 +109,7 @@ class List extends Component{
                 width: '40%',
                 render: (item) => (
                     <Fragment>
-                        {console.log(item)}
                        <p >{`${item && item.firstname} ${item && item.lastname}`}</p>
-                        
                     </Fragment>
                     )
             },
@@ -130,9 +122,13 @@ class List extends Component{
             },
             {
                 title: 'Mobile Phoone',
-                dataIndex: 'mobile',
                 key: 'mobile',
-                width: '12%'
+                width: '12%',
+                render: (item) => (
+                    <Fragment>
+                       <p >{`${item && item.nation}${item && item.mobile}`}</p>
+                    </Fragment>
+                    )
             },
             {
                 title: 'Nationality',

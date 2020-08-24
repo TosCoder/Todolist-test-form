@@ -1,15 +1,34 @@
 import React, { Component, Fragment } from 'react'
 import { Row, Col, Table, Checkbox, Button } from 'antd'
-import { data } from '../../helpers/mocks'
-import { Link } from 'react-router-dom'
+import { formController } from '../../services'
+import { connect } from 'react-redux'
+import { updateList, deleteList, deleteAll } from '../../store/todos/action'
 
 class List extends Component{
     constructor(){
         super()
         this.state = {
-            myList: data,
-            checked : false
+            myList: [],
+            checked : false,
+            myId: []
         }        
+    }
+
+    componentDidMount = () => {
+        this.getData()
+    }
+
+    componentDidUpdate = (prevProps, prevState) => {
+        console.log('List-update =>',this.props)
+        if(prevProps.todos.data !== this.props.todos.data){
+            this.getData()
+        }
+    }
+
+    getData = () => {
+        console.log('List =>',this.props)
+        const data = formController().getData()
+        this.setState({ myList: JSON.parse(data) })
     }
 
     hamdleCheckAll = (all) => { 
@@ -23,7 +42,6 @@ class List extends Component{
     }
 
     handleCheck = (data) => {
-        
         const arrData = this.state.myList.map(item => {
             if(item._id === data._id){
                 return {
@@ -34,21 +52,46 @@ class List extends Component{
                 return item
             }
         })
-        this.setState({ myList: arrData })
+
+        if(this.state.myId.includes(data._id)){
+            console.log('sss')
+            const arr = this.state.myId.filter(item => {return item !== data._id })
+            console.log(arr)
+            this.setState({ myList: arrData, myId: arr })
+        }else{
+            this.state.myId.push(data._id)
+            this.setState({ myList: arrData, myId: this.state.myId })
+        }       
+    
+       
     }
 
     handleDelete = (data) => {
         const arrData = this.state.myList.filter(item =>{ return item._id !== data._id && item } )
+        this.props.dispatch(deleteList(arrData))
         this.setState({ myList : arrData })
         
     }
 
+    handleUpdate = (data) => {
+        console.log(data)
+        this.props.dispatch(updateList(data))
+    }
+
     handleDeleteAll = () => {
         if(this.state.checked){
+
+            this.props.dispatch(deleteAll([]))
              this.setState({ myList : [] })
+        }else{
+            console.log(this.state.myId)
+            const arrData = this.state.myList.filter(item => !this.state.myId.includes(item._id))
+            this.props.dispatch(deleteList(arrData))
+            this.setState({ myList : arrData })
         }
        
     }
+    
     
     render(){
 
@@ -68,12 +111,15 @@ class List extends Component{
             },
             {
                 title: 'Name',
-                dataIndex: 'name',
                 key: 'name',
                 width: '40%',
-                render: text => (
-                    <Link to='/form'>{text}</Link>
-                )
+                render: (item) => (
+                    <Fragment>
+                        {console.log(item)}
+                       <p >{`${item && item.firstname} ${item && item.lastname}`}</p>
+                        
+                    </Fragment>
+                    )
             },
             {
                 title: 'Gender',
@@ -100,7 +146,7 @@ class List extends Component{
                 render: (item) => (
                     <Row>
                         <Col style={{ padding: '0 5px' }}>
-                            <Button  type='primary' >Edit</Button>
+                            <Button  type='primary' onClick={() => this.handleUpdate(item)} >Edit</Button>
                         </Col>
                         <Col style={{ padding: '0 5px' }}>
                             <Button  type='primary' danger onClick={() => this.handleDelete(item)} >Delete</Button>
@@ -137,4 +183,8 @@ class List extends Component{
     }
 }
 
-export default List
+const mapStateToProps = (state) => {
+    return state
+}
+
+export default connect(mapStateToProps)(List)

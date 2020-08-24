@@ -11,7 +11,7 @@ export const Datepicker = ({ name, label, require, message, onChange, value }) =
                     {require && <StyledLabel color='red'>{`*`}</StyledLabel>}
                 </Col>
                 <Col style={{ padding: '0 5px' }}>
-                    <Form.Item name={name} rules={[{ required: require, message: message }]}>
+                    <Form.Item name={name} rules={[{ required: require, message: message  }]} >
                         <AntDatePicker onChange={onChange} value={value} format='MM/DD/YYYY' />
                     </Form.Item>
                 </Col>

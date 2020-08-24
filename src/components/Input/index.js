@@ -3,7 +3,6 @@ import { Row, Col, Input as AntInput, Form } from 'antd'
 import { StyledLabel } from './style'
 
 export const Input = ({ name, type, label, value, onChange, require, unit, max, message }) => {
-
     return (
         <Fragment>
             <Row >
